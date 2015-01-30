@@ -35,24 +35,21 @@ func loadUsers() {
 	users := toJsonFromFile("users.json")
 	fmt.Println(users[0])
 	for _, user := range users {
-		uname := getStringOrEmpty(user["slug"])
-		fname := getStringOrEmpty(user["first_name"])
-		lname := getStringOrEmpty(user["last_name"])
-		email := getStringOrEmpty(user["email"])
-		av_url := getStringOrEmpty(user["avatar"])
 
 		timeCreated := parseOldDateFormat(user["created"])
 		id := int64(user["id"].(float64))
 
 		newUser := PtUser{
-			Id:         id,
-			Username:   uname,
-			FirstName:  fname,
-			LastName:   lname,
-			Email:      email,
-			Password:   "NONE",
-			Avatar_URL: av_url,
-			Created:    timeCreated,
+			Id:                id,
+			Username:          getStringOrEmpty(user["slug"]),
+			FirstName:         getStringOrEmpty(user["first_name"]),
+			LastName:          getStringOrEmpty(user["last_name"]),
+			Email:             getStringOrEmpty(user["email"]),
+			FacebookId:        getStringOrEmpty(user["fb_id"]),
+			FacebookAuthToken: getStringOrEmpty(user["fb_access_token"]),
+			Password:          "NONE",
+			Avatar_URL:        getStringOrEmpty(user["avatar"]),
+			Created:           timeCreated,
 		}
 		db.FirstOrCreate(&newUser)
 	}

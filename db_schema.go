@@ -40,9 +40,9 @@ func getDB() (*gorm.DB, error) {
 
 type PtUser struct {
 	Id                int64
-	Username          string    `sql:"not null; unique"`
-	Password          string    `sql:"not null" json:"-"`
-	Email             string    `sql:"not null; unique"`
+	Username          string `sql:"not null; unique"`
+	Password          string `sql:"not null" json:"-"`
+	Email             string
 	Created           time.Time `sql:"not null; DEFAULT:current_timestamp"`
 	Score             int       `sql:"not null; DEFAULT:0"`
 	PredictionGraded  int       `sql:"not null; DEFAULT:0"`
@@ -50,7 +50,7 @@ type PtUser struct {
 	IsPundit          bool      `sql:"not null; DEFAULT:FALSE"`
 	IsFeatured        bool      `sql:"not null; DEFAULT:FALSE"`
 	FacebookId        string
-	FacebookAuthToken string //`sql:"unique"`?
+	FacebookAuthToken string
 	FirstName         string
 	LastName          string
 	Avatar_URL        string

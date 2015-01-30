@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -9,12 +10,19 @@ import (
 
 func main() {
 	//loadCategoreis()
-	loadUsers()
+	//loadUsers()
+	loadCalls()
 
 }
 
 func toJsonFromFile(filename string) []map[string]interface{} {
 	data, err := ioutil.ReadFile(filename)
+	oldStr := []byte(`\'`)
+	newStr := []byte(`'`)
+	data = bytes.Replace(data, oldStr, newStr, -1)
+	oldStr = []byte("\t")
+	newStr = []byte(` `)
+	data = bytes.Replace(data, oldStr, newStr, -1)
 	categories := make([]map[string]interface{}, 0)
 	if err != nil {
 		fmt.Println("in file: ", filename, err)
@@ -60,6 +68,17 @@ func getStringOrEmpty(i interface{}) string {
 	}
 }
 
+func parseOldDateFormat(ti interface{}) time.Time {
+	form := "2006-01-02 15:04:05"
+	t := ti.(string)
+	timeCreated, err := time.Parse(form, t)
+	if err != nil {
+		fmt.Println(err)
+		timeCreated = time.Now()
+	}
+	return timeCreated
+}
+
 func loadUsers() {
 	db, _ := getDB()
 	db = db.Debug()
@@ -71,15 +90,8 @@ func loadUsers() {
 		lname := getStringOrEmpty(user["last_name"])
 		email := getStringOrEmpty(user["email"])
 		av_url := getStringOrEmpty(user["avatar"])
-		//fmt.Println(user["created"])
 
-		form := "2006-01-02 15:04:05"
-		t := user["created"].(string)
-		timeCreated, err := time.Parse(form, t)
-		if err != nil {
-			fmt.Println(err)
-			timeCreated = time.Now()
-		}
+		timeCreated := parseOldDateFormat(user["created"])
 		id := int64(user["id"].(float64))
 
 		newUser := PtUser{
@@ -93,5 +105,31 @@ func loadUsers() {
 			Created:    timeCreated,
 		}
 		db.FirstOrCreate(&newUser)
+	}
+}
+
+func loadCalls() {
+	db, _ := getDB()
+	db = db.Debug()
+	calls := toJsonFromFile("calls.json")
+	fmt.Println(calls[0])
+	//	size := len(calls)
+
+	for _, c := range calls {
+
+		id := int64(c["id"].(float64))
+		creId := int64(c["user_id"].(float64))
+		catId := int64(c["category_id"].(float64))
+
+		newPrediction := PtPrediction{
+			Id:         id,
+			CreatorId:  creId,
+			CategoryId: catId,
+			Deadline:   parseOldDateFormat(c["approval_time"]),
+			Created:    parseOldDateFormat(c["created"]),
+			Title:      getStringOrEmpty(c["prediction"]),
+		}
+		db.FirstOrCreate(&newPrediction)
+
 	}
 }

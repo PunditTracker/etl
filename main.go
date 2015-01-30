@@ -1,10 +1,11 @@
 package main
 
 import (
-	_ "fmt"
+	"fmt"
+	"strings"
 )
 
-func init() {
+func dropAndReload() {
 	db, _ := getDB()
 	db.DropTable(&PtCategory{})
 	db.DropTable(&PtSubcategory{})
@@ -13,7 +14,21 @@ func init() {
 	SetUpDB(db)
 }
 
+func prompt(p string) bool {
+	fmt.Println(p)
+	var res string
+	fmt.Scanln(&res)
+	res = strings.ToLower(res)
+	if res == "y" || res == "yes" {
+		return true
+	}
+	return false
+}
+
 func main() {
+	if prompt("Do you want to drop the old tables and reload") {
+		dropAndReload()
+	}
 	loadCategoreis()
 	loadUsers()
 	loadCalls()

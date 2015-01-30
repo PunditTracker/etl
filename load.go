@@ -4,6 +4,10 @@ import (
 	"fmt"
 )
 
+var (
+	categoryIds = make(map[int64]struct{})
+)
+
 func loadCategoreis() {
 	db, _ := getDB()
 	categories := toJsonFromFile("categories.json")
@@ -13,15 +17,19 @@ func loadCategoreis() {
 		if c["parent_id"] == 0.0 {
 			name := c["name"].(string)
 			fmt.Println("add cat")
-			db.Save(&PtCategory{
+			id := int64(c["id"].(float64))
+			db.Create(&PtCategory{
+				Id:   id,
 				Name: name,
 			})
+			categoryIds[id] = struct{}{}
 		} else {
 			fmt.Println("add subcat")
 			name := c["name"].(string)
 			pid := int64(c["parent_id"].(float64))
 
-			db.Save(&PtSubcategory{
+			db.Create(&PtSubcategory{
+				Id:          int64(c["id"].(float64)),
 				Name:        name,
 				ParentCatId: pid,
 			})
@@ -51,7 +59,7 @@ func loadUsers() {
 			Avatar_URL:        getStringOrEmpty(user["avatar"]),
 			Created:           timeCreated,
 		}
-		db.FirstOrCreate(&newUser)
+		db.Create(&newUser)
 	}
 }
 
@@ -67,16 +75,29 @@ func loadCalls() {
 		id := int64(c["id"].(float64))
 		creId := int64(c["user_id"].(float64))
 		catId := int64(c["category_id"].(float64))
-
-		newPrediction := PtPrediction{
-			Id:         id,
-			CreatorId:  creId,
-			CategoryId: catId,
-			Deadline:   parseOldDateFormat(c["approval_time"]),
-			Created:    parseOldDateFormat(c["created"]),
-			Title:      getStringOrEmpty(c["prediction"]),
+		_, exists := categoryIds[catId]
+		var newPrediction PtPrediction
+		if exists {
+			newPrediction = PtPrediction{
+				Id:         id,
+				CreatorId:  creId,
+				CategoryId: catId,
+				Deadline:   parseOldDateFormat(c["approval_time"]),
+				Created:    parseOldDateFormat(c["created"]),
+				Title:      getStringOrEmpty(c["prediction"]),
+			}
+		} else {
+			newPrediction = PtPrediction{
+				Id:        id,
+				CreatorId: creId,
+				SubcatId:  catId,
+				Deadline:  parseOldDateFormat(c["approval_time"]),
+				Created:   parseOldDateFormat(c["created"]),
+				Title:     getStringOrEmpty(c["prediction"]),
+			}
 		}
-		db.FirstOrCreate(&newPrediction)
+
+		db.Create(&newPrediction)
 
 	}
 }

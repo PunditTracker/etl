@@ -9,16 +9,6 @@ import (
 	"time"
 )
 
-func init() {
-	db, err := getDB()
-	defer db.Close()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	SetUpDB(db)
-}
-
 func getDB() (*gorm.DB, error) {
 	serv := os.Getenv("SERV")
 	if serv == "local" {

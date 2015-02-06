@@ -49,7 +49,6 @@ func loadUsers() {
 
 		newUser := PtUser{
 			Id:                id,
-			Username:          getStringOrEmpty(user["slug"]),
 			FirstName:         getStringOrEmpty(user["first_name"]),
 			LastName:          getStringOrEmpty(user["last_name"]),
 			Email:             getStringOrEmpty(user["email"]),

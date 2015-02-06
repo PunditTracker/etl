@@ -32,13 +32,15 @@ func getDB() (*gorm.DB, error) {
 
 type PtUser struct {
 	Id                int64
-	Username          string `sql:"not null; unique"`
-	Password          string `sql:"not null" json:"-"`
-	Email             string
+	Password          string    `sql:"not null" json:"-"`
+	ResetKey          string    `json:"-" sql:"DEFAULT:null"`
+	ResetValidUntil   time.Time `json:"-"`
+	Email             string    `sql:"not null"`
 	Created           time.Time `sql:"not null; DEFAULT:current_timestamp"`
 	Score             int       `sql:"not null; DEFAULT:0"`
 	PredictionGraded  int       `sql:"not null; DEFAULT:0"`
 	PredictionCorrect int       `sql:"not null; DEFAULT:0"`
+	IsAdmin           bool      `sql:"not null; DEFAULT:FALSE"`
 	IsPundit          bool      `sql:"not null; DEFAULT:FALSE"`
 	IsFeatured        bool      `sql:"not null; DEFAULT:FALSE"`
 	FacebookId        string
@@ -169,7 +171,9 @@ type PtHero struct {
 	IsLive       bool   `sql:"not null; DEFAULT:FALSE"`
 	ImageUrl     string `sql:"not null"`
 	Title        string `sql:"not null"`
-	PredictionId int64  `sql:"not null"`
+	PredictionId int64
+	ButtonText   string
+	ButtonUrl    string
 }
 
 func SetUpDB(db *gorm.DB) {

@@ -24,7 +24,7 @@ func getDB() (*gorm.DB, error) {
 		}
 		db.DB()
 		db.SingularTable(true)
-		db.LogMode(true)
+		db.LogMode(false)
 		return &db, err
 	}
 	return nil, errors.New("No SERV specified")
@@ -35,7 +35,7 @@ type PtUser struct {
 	Password          string    `sql:"not null" json:"-"`
 	ResetKey          string    `json:"-" sql:"DEFAULT:null"`
 	ResetValidUntil   time.Time `json:"-"`
-	Email             string    `sql:"not null"`
+	Email             string    `sql:"not null; unique"`
 	Created           time.Time `sql:"not null; DEFAULT:current_timestamp"`
 	Score             int       `sql:"not null; DEFAULT:0"`
 	PredictionGraded  int       `sql:"not null; DEFAULT:0"`

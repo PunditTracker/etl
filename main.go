@@ -8,7 +8,6 @@ import (
 func dropAndReload() {
 	db, _ := getDB()
 	db.DropTable(&PtCategory{})
-	db.DropTable(&PtSubcategory{})
 	db.DropTable(&PtUser{})
 	db.DropTable(&PtPrediction{})
 	SetUpDB(db)

@@ -2,9 +2,9 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"github.com/jinzhu/gorm"
 	_ "github.com/lib/pq"
+	"log"
 	"os"
 	"time"
 )
@@ -20,11 +20,11 @@ func getDB() (*gorm.DB, error) {
 	if serv == "aws" {
 		db, err := gorm.Open("postgres", "host=ptdev.ccm2e8gfsxjt.us-west-2.rds.amazonaws.com dbname=ptdev user=pundittracker password=ptrack20!!")
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 		}
 		db.DB()
 		db.SingularTable(true)
-		db.LogMode(true)
+		db.LogMode(false)
 		return &db, err
 	}
 	return nil, errors.New("No SERV specified")
@@ -53,19 +53,9 @@ type PtUser struct {
 }
 
 type PtCategory struct {
-	Id            int64
-	Name          string `sql:"not null; unique"`
-	Subcategories []PtSubcategory
-	IsLive        bool `sql:"not null; DEFAULT:FALSE"`
-}
-
-type PtSubcategory struct {
-	Id          int64
-	Name        string `sql:"not null; unique"`
-	ParentCat   PtCategory
-	ParentCatId int64 `sql:"not null"`
-	IsLive      bool  `sql:"not null; DEFAULT: FALSE"`
-	Predictions []PtPrediction
+	Id     int64
+	Name   string `sql:"not null; unique"`
+	IsLive bool   `sql:"not null; DEFAULT:FALSE"`
 }
 
 type PtPredictionState int
@@ -81,17 +71,16 @@ type PtPrediction struct {
 	Id         int64
 	CreatorId  int64             `sql:"not null"`
 	CategoryId int64             `sql:"not null"`
-	SubcatId   int64             `sql:"not null"`
 	Title      string            `sql:"not null"`
 	State      PtPredictionState `sql:"not null";DEFAULT:0`
 	IsFeatured bool              `sql:"not null; DEFAULT:FALSE"`
 	Created    time.Time         `sql:"not null; DEFAULT:current_timestamp"`
-	Deadline   time.Time         `sql:"not null"`
-	Creator    PtUser
-	Category   PtCategory
-	Subcat     PtSubcategory
+	Deadline   time.Time
 	ImageUrl   string
-	Tags       []PtTag `gorm:"many2many:prediction_tag_map;"`
+	Creator    PtUser
+	Category   PtCategory `json:"-"`
+	Tags       []string   `sql:"-"`
+	TagVal     []PtTag    `gorm:"many2many:prediction_tag_map;"`
 }
 
 type PtVote struct {
@@ -180,7 +169,6 @@ func SetUpDB(db *gorm.DB) {
 	db.Debug().AutoMigrate(
 		&PtUser{},
 		&PtCategory{},
-		&PtSubcategory{},
 		&PtPrediction{},
 		&PtVote{},
 		&PtTag{},

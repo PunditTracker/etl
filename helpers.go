@@ -15,6 +15,13 @@ func getStringOrEmpty(i interface{}) string {
 		return ""
 	}
 }
+func getNumOrZero(i interface{}) int {
+	if v, ok := i.(int); ok {
+		return v
+	}
+	return 0
+
+}
 
 func parseOldDateFormat(ti interface{}) time.Time {
 	form := "2006-01-02 15:04:05"

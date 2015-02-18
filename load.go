@@ -32,15 +32,17 @@ func loadUsers() {
 		id := int64(user["id"].(float64))
 
 		newUser := PtUser{
-			Id:                id,
-			FirstName:         getStringOrEmpty(user["first_name"]),
-			LastName:          getStringOrEmpty(user["last_name"]),
-			Email:             getStringOrEmpty(user["email"]),
-			FacebookId:        getStringOrEmpty(user["fb_id"]),
-			FacebookAuthToken: getStringOrEmpty(user["fb_access_token"]),
-			Password:          "NONE",
-			Avatar_URL:        getStringOrEmpty(user["avatar"]),
-			Created:           timeCreated,
+			Id:                 id,
+			FirstName:          getStringOrEmpty(user["first_name"]),
+			LastName:           getStringOrEmpty(user["last_name"]),
+			Email:              getStringOrEmpty(user["email"]),
+			FacebookId:         getStringOrEmpty(user["fb_id"]),
+			FacebookAuthToken:  getStringOrEmpty(user["fb_access_token"]),
+			PredictionsGraded:  getNumOrZero(user["calls_graded"]),
+			PredictionsCorrect: getNumOrZero(user["calss_correct"]),
+			Password:           "NONE",
+			AvatarUrl:          getStringOrEmpty(user["avatar"]),
+			Created:            timeCreated,
 		}
 		db.Create(&newUser)
 	}
@@ -48,7 +50,6 @@ func loadUsers() {
 
 func loadCalls() {
 	db, _ := getDB()
-	db = db.Debug()
 	calls := toJsonFromFile("calls.json")
 	fmt.Println(calls[0])
 	//	size := len(calls)

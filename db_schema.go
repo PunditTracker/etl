@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"errors"
 	"github.com/jinzhu/gorm"
 	_ "github.com/lib/pq"
@@ -31,25 +32,26 @@ func getDB() (*gorm.DB, error) {
 }
 
 type PtUser struct {
-	Id                int64
-	Password          string    `sql:"not null" json:"-"`
-	ResetKey          string    `json:"-" sql:"DEFAULT:null"`
-	ResetValidUntil   time.Time `json:"-"`
-	Email             string    `sql:"not null; unique"`
-	Created           time.Time `sql:"not null; DEFAULT:current_timestamp"`
-	Score             int       `sql:"not null; DEFAULT:0"`
-	PredictionGraded  int       `sql:"not null; DEFAULT:0"`
-	PredictionCorrect int       `sql:"not null; DEFAULT:0"`
-	IsAdmin           bool      `sql:"not null; DEFAULT:FALSE"`
-	IsPundit          bool      `sql:"not null; DEFAULT:FALSE"`
-	IsFeatured        bool      `sql:"not null; DEFAULT:FALSE"`
-	FacebookId        string
-	FacebookAuthToken string
-	FirstName         string
-	LastName          string
-	Avatar_URL        string
-	Location          string
-	Predictions       []PtPrediction
+	Id                 int64
+	Password           string         `sql:"not null" json:"-"`
+	ResetKey           sql.NullString `json:"-" sql:"DEFAULT:null"`
+	ResetValidUntil    time.Time      `json:"-" sql:"DEFAULT:current_timestamp"`
+	Email              string         `sql:"not null; unique"`
+	Created            time.Time      `sql:"not null; DEFAULT:current_timestamp"`
+	Score              int            `sql:"not null; DEFAULT:0"`
+	PredictionsGraded  int            `sql:"not null; DEFAULT:0"`
+	PredictionsCorrect int            `sql:"not null; DEFAULT:0"`
+	IsAdmin            bool           `sql:"not null; DEFAULT:FALSE"`
+	IsPundit           bool           `sql:"not null; DEFAULT:FALSE"`
+	IsFeatured         bool           `sql:"not null; DEFAULT:FALSE"`
+	FacebookId         string         `sql:"not null; DEFAULT:''"`
+	FacebookAuthToken  string         `sql:"not null; DEFAULT:''"`
+	FirstName          string         `sql:"not null; DEFAULT:''"`
+	LastName           string         `sql:"not null; DEFAULT:''"`
+	AvatarUrl          string         `sql:"not null; DEFAULT:''"`
+	Affiliation        string         `sql:"not null; DEFAULT:''"`
+	Location           string         `sql:"not null; DEFAULT:''"`
+	Predictions        []PtPrediction
 }
 
 type PtCategory struct {
@@ -68,19 +70,20 @@ const (
 )
 
 type PtPrediction struct {
-	Id         int64
-	CreatorId  int64             `sql:"not null"`
-	CategoryId int64             `sql:"not null"`
-	Title      string            `sql:"not null"`
-	State      PtPredictionState `sql:"not null";DEFAULT:0`
-	IsFeatured bool              `sql:"not null; DEFAULT:FALSE"`
-	Created    time.Time         `sql:"not null; DEFAULT:current_timestamp"`
-	Deadline   time.Time
-	ImageUrl   string
-	Creator    PtUser
-	Category   PtCategory `json:"-"`
-	Tags       []string   `sql:"-"`
-	TagVal     []PtTag    `gorm:"many2many:prediction_tag_map;"`
+	Id          int64
+	CreatorId   int64             `sql:"not null"`
+	CategoryId  int64             `sql:"not null"`
+	Title       string            `sql:"not null"`
+	State       PtPredictionState `sql:"not null";DEFAULT:0`
+	IsFeatured  bool              `sql:"not null; DEFAULT:FALSE"`
+	Created     time.Time         `sql:"not null; DEFAULT:current_timestamp"`
+	Deadline    time.Time
+	ImageUrl    string
+	Creator     PtUser
+	Category    PtCategory `json:"-"`
+	Tags        []string   `sql:"-"`
+	CurUserVote int        `sql:"-"`
+	TagVal      []PtTag    `gorm:"many2many:prediction_tag_map;"`
 }
 
 type PtVote struct {
@@ -143,6 +146,7 @@ type PtBracket struct {
 
 type PtPredictionSet struct {
 	Id            int64
+	CategoryId    int64  `sql:"not null; DEFAULT:0"`
 	IsLive        bool   `sql:"not null; DEFAULT:FALSE"`
 	Title         string `sql:"not null"`
 	ImageUrl      string `sql:"not null"`
@@ -156,6 +160,7 @@ type PtPredictionSet struct {
 
 type PtHero struct {
 	Id           int64
+	CategoryId   int64  `sql:"not null; DEFAULT:0"`
 	LocationNum  int64  `sql:"not null"`
 	IsLive       bool   `sql:"not null; DEFAULT:FALSE"`
 	ImageUrl     string `sql:"not null"`

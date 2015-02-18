@@ -23,7 +23,7 @@ func loadCategoreis() {
 
 func loadUsers() {
 	db, _ := getDB()
-	db = db.Debug()
+	db = db
 	users := toJsonFromFile("users.json")
 	fmt.Println(users[0])
 	for _, user := range users {
@@ -44,7 +44,25 @@ func loadUsers() {
 			AvatarUrl:          getStringOrEmpty(user["avatar"]),
 			Created:            timeCreated,
 		}
+		if newUser.Email == "" {
+			newUser.Email = "None@None.com"
+		}
 		db.Create(&newUser)
+	}
+}
+
+func loadPundits() {
+	db, _ := getDB()
+	db = db.Debug()
+	pundits := toJsonFromFile("pundits.json")
+	for _, pundit := range pundits {
+		uid := int64(pundit["user_id"].(float64))
+		fmt.Println(uid)
+		var u PtUser
+		db.First(&u, uid)
+		u.PredictionsGraded = getNumOrZero(pundit["calls_graded"])
+		u.PredictionsCorrect = getNumOrZero(pundit["calss_correct"])
+		db.Save(&u)
 	}
 }
 

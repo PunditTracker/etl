@@ -30,5 +30,6 @@ func main() {
 	}
 	loadCategoreis()
 	loadUsers()
+	//loadPundits()
 	loadCalls()
 }

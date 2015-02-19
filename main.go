@@ -33,5 +33,5 @@ func main() {
 	loadUsers()
 	loadPundits()
 	loadCalls()
-	loadVotes()
+	//loadVotes()
 }

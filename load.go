@@ -101,7 +101,11 @@ func loadVotes() {
 		ptvar, isFloat := v["ptvariable"].(float64)
 		var voteVal int
 		if isFloat {
-			voteVal = int(4 * ptvar)
+			if ptvar == 1 {
+				voteVal = 4
+			} else {
+				voteVal = 3
+			}
 		} else {
 			voteVal = 4
 		}

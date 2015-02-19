@@ -91,3 +91,34 @@ func loadCalls() {
 
 	}
 }
+
+func loadVotes() {
+	db, _ := getDB()
+	votes := toJsonFromFile("votes.json")
+	for _, v := range votes {
+		voterId := int64(v["user_id"].(float64))
+		predId := int64(v["call_id"].(float64))
+		ptvar, isFloat := v["ptvariable"].(float64)
+		var voteVal int
+		if isFloat {
+			voteVal = int(4 * ptvar)
+		} else {
+			voteVal = 4
+		}
+		boldness, isFloat := v["boldness"].(float64)
+		var avg float64
+		if isFloat {
+			avg = 1 - boldness
+		} else {
+			avg = -1
+		}
+		NewVote := PtVote{
+			VoterId:       voterId,
+			VotedOnId:     predId,
+			AverageAtTime: avg,
+			VoteValue:     voteVal,
+			Created:       parseOldDateFormat(v["created"]),
+		}
+		db.Create(&NewVote)
+	}
+}

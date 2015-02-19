@@ -10,6 +10,7 @@ func dropAndReload() {
 	db.DropTable(&PtCategory{})
 	db.DropTable(&PtUser{})
 	db.DropTable(&PtPrediction{})
+	db.DropTable(&PtVote{})
 	SetUpDB(db)
 }
 
@@ -30,6 +31,7 @@ func main() {
 	}
 	loadCategoreis()
 	loadUsers()
-	//loadPundits()
+	loadPundits()
 	loadCalls()
+	loadVotes()
 }

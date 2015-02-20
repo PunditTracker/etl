@@ -7,7 +7,7 @@ import (
 
 func dropAndReload() {
 	db, _ := getDB()
-	db.DropTable(&PtUser{})
+	db.DropTable(&PtVote{})
 	SetUpDB(db)
 }
 
@@ -27,8 +27,8 @@ func main() {
 		dropAndReload()
 	}
 	//loadCategoreis()
-	loadUsers()
-	loadPundits()
+	//loadUsers()
+	//loadPundits()
 	//loadCalls()
-	//loadVotes()
+	loadVotes()
 }

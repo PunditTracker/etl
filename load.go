@@ -23,7 +23,7 @@ func loadCategoreis() {
 
 func loadUsers() {
 	db, _ := getDB()
-	db = db
+	db = db.Debug()
 	users := toJsonFromFile("users.json")
 	fmt.Println(users[0])
 	for _, user := range users {
@@ -56,7 +56,7 @@ func loadUsers() {
 
 func loadPundits() {
 	db, _ := getDB()
-	db = db
+	db = db.Debug()
 	pundits := toJsonFromFile("pundits.json")
 
 	for _, pundit := range pundits {
@@ -105,21 +105,31 @@ func loadVotes() {
 	for _, v := range votes {
 		voterId := int64(v["user_id"].(float64))
 		predId := int64(v["call_id"].(float64))
-		ptvar, isFloat := v["ptvariable"].(float64)
+		rate, isFloat := v["rate"].(float64)
 		var voteVal int
 		if isFloat {
-			if ptvar == 1 {
-				voteVal = 4
-			} else {
+			switch rate {
+			case 0:
+				voteVal = 0
+			case 0.25:
+				voteVal = 1
+			case 0.75:
+				voteVal = 2
+			case 1.0:
 				voteVal = 3
 			}
 		} else {
-			voteVal = 4
+			voteVal = -1
 		}
 		boldness, isFloat := v["boldness"].(float64)
 		var avg float64
 		if isFloat {
-			avg = 1 - boldness
+			if voteVal >= 2 {
+				avg = boldness
+			} else {
+				avg = 1 - boldness
+			}
+			avg *= 4
 		} else {
 			avg = -1
 		}

@@ -30,6 +30,9 @@ func loadUsers() {
 
 		timeCreated := parseOldDateFormat(user["created"])
 		id := int64(user["id"].(float64))
+		g := getNumOrZero(user["calls_graded"])
+		c := getNumOrZero(user["calls_correct"])
+		fmt.Println(g, c)
 
 		newUser := PtUser{
 			Id:                 id,
@@ -38,8 +41,8 @@ func loadUsers() {
 			Email:              getStringOrEmpty(user["email"]),
 			FacebookId:         getStringOrEmpty(user["fb_id"]),
 			FacebookAuthToken:  getStringOrEmpty(user["fb_access_token"]),
-			PredictionsGraded:  getNumOrZero(user["calls_graded"]),
-			PredictionsCorrect: getNumOrZero(user["calss_correct"]),
+			PredictionsGraded:  g,
+			PredictionsCorrect: c,
 			Password:           "NONE",
 			AvatarUrl:          getStringOrEmpty(user["avatar"]),
 			Created:            timeCreated,
@@ -53,15 +56,19 @@ func loadUsers() {
 
 func loadPundits() {
 	db, _ := getDB()
-	db = db.Debug()
+	db = db
 	pundits := toJsonFromFile("pundits.json")
+
 	for _, pundit := range pundits {
+		g := getNumOrZero(pundit["calls_graded"])
+		c := getNumOrZero(pundit["calls_correct"])
+		fmt.Println(g, c)
 		uid := int64(pundit["user_id"].(float64))
 		fmt.Println(uid)
 		var u PtUser
 		db.First(&u, uid)
-		u.PredictionsGraded = getNumOrZero(pundit["calls_graded"])
-		u.PredictionsCorrect = getNumOrZero(pundit["calss_correct"])
+		u.PredictionsGraded = g
+		u.PredictionsCorrect = c
 		db.Save(&u)
 	}
 }

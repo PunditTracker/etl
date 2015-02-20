@@ -16,8 +16,8 @@ func getStringOrEmpty(i interface{}) string {
 	}
 }
 func getNumOrZero(i interface{}) int {
-	if v, ok := i.(int); ok {
-		return v
+	if v, ok := i.(float64); ok {
+		return int(v)
 	}
 	return 0
 

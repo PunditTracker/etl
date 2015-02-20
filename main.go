@@ -7,10 +7,7 @@ import (
 
 func dropAndReload() {
 	db, _ := getDB()
-	db.DropTable(&PtCategory{})
 	db.DropTable(&PtUser{})
-	db.DropTable(&PtPrediction{})
-	db.DropTable(&PtVote{})
 	SetUpDB(db)
 }
 
@@ -29,9 +26,9 @@ func main() {
 	if prompt("Do you want to drop the old tables and reload") {
 		dropAndReload()
 	}
-	loadCategoreis()
+	//loadCategoreis()
 	loadUsers()
 	loadPundits()
-	loadCalls()
+	//loadCalls()
 	//loadVotes()
 }
